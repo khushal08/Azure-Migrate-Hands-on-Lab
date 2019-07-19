@@ -1,7 +1,6 @@
-![Microsoft Cloud Workshop logo](https://github.com/Microsoft/MCW-Template-Cloud-Workshop/raw/master/Media/ms-cloud-workshop.png "Microsoft Cloud Workshops")
 
 <div class="MCWHeader1">
-Line-of-business application migration
+Line-of-business application migration using Azure Migrate
 </div>
 
 <div class="MCWHeader2">
@@ -9,19 +8,10 @@ Hands-on lab step-by-step
 </div>
 
 <div class="MCWHeader3">
-May 2019
+19 July 2019
 </div>
 
 
-Information in this document, including URL and other Internet Web site references, is subject to change without notice. Unless otherwise noted, the example companies, organizations, products, domain names, e-mail addresses, logos, people, places, and events depicted herein are fictitious, and no association with any real company, organization, product, domain name, e-mail address, logo, person, place or event is intended or should be inferred. Complying with all applicable copyright laws is the responsibility of the user. Without limiting the rights under copyright, no part of this document may be reproduced, stored in or introduced into a retrieval system, or transmitted in any form or by any means (electronic, mechanical, photocopying, recording, or otherwise), or for any purpose, without the express written permission of Microsoft Corporation.
-
-Microsoft may have patents, patent applications, trademarks, copyrights, or other intellectual property rights covering subject matter in this document. Except as expressly provided in any written license agreement from Microsoft, the furnishing of this document does not give you any license to these patents, trademarks, copyrights, or other intellectual property.
-
-The names of manufacturers, products, or URLs are provided for informational purposes only and Microsoft makes no representations and warranties, either expressed, implied, or statutory, regarding these manufacturers or the use of the products with any Microsoft technologies. The inclusion of a manufacturer or product does not imply endorsement of Microsoft of the manufacturer or product. Links may be provided to third party sites. Such sites are not under the control of Microsoft and Microsoft is not responsible for the contents of any linked site or any link contained in a linked site, or any changes or updates to such sites. Microsoft is not responsible for webcasting or any other form of transmission received from any linked site. Microsoft is providing these links to you only as a convenience, and the inclusion of any link does not imply endorsement of Microsoft of the site or the products contained therein.
-
-© 2019 Microsoft Corporation. All rights reserved.
-
-Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/intellectualproperty/Trademarks/Usage/General.aspx> are trademarks of the Microsoft group of companies. All other trademarks are property of their respective owners.
 
 **Contents** 
 
@@ -42,24 +32,18 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
     - [Task 6: Explore dependency visualization](#task-6-explore-dependency-visualization)
   - [Exercise 2: Migrate the Application Database](#exercise-2-migrate-the-application-database)
     - [Overview](#overview-1)
-    - [Task 1: Register the Microsoft.DataMigration resource provider](#task-1-register-the-microsoftdatamigration-resource-provider)
-    - [Task 2: Create an Azure SQL Database](#task-2-create-an-azure-sql-database)
-    - [Task 3: Assess the on-premises database](#task-3-assess-the-on-premises-database)
-    - [Task 4: Migrate On-premises database schema](#task-4-migrate-on-premises-database-schema)
-    - [Task 5: Create the Database Migration Service](#task-5-create-the-database-migration-service)
-    - [Task 6: Migrate the on-premises data](#task-6-migrate-the-on-premises-data)
+    - [Task 1: Create an Azure SQL Database](#task-1-create-an-azure-sql-database)
+    - [Task 2: Assess the on-premises database](#task-2-assess-the-on-premises-database)
+    - [Task 3: Migrate On-premises database](#task-3-migrate-on-premises-database)
   - [Exercise 3: Migrate the application and web tiers using Azure Site Recovery](#exercise-3-migrate-the-application-and-web-tiers-using-azure-site-recovery)
     - [Task 1: Create a Storage Account](#task-1-create-a-storage-account)
-    - [Task 2: Create a Recovery Services Vault](#task-2-create-a-recovery-services-vault)
-    - [Task 3: Create a Virtual Network](#task-3-create-a-virtual-network)
-    - [Task 4: Prepare On-premises Virtual Machines](#task-4-prepare-on-premises-virtual-machines)
-    - [Task 5: Configure Azure Site Recovery](#task-5-configure-azure-site-recovery)
-    - [Task 6: Create a Recovery Plan](#task-6-create-a-recovery-plan)
-    - [Task 7: Configure Azure VM settings](#task-7-configure-azure-vm-settings)
-    - [Task 8: Test Failover](#task-8-test-failover)
-    - [Task 9: Configure database connection](#task-9-configure-database-connection)
-    - [Task 10: Configure public IP and test application](#task-10-configure-public-ip-and-test-application)
-    - [Task 11: Cleanup the test failover](#task-11-cleanup-the-test-failover)
+    - [Task 2: Create a Virtual Network](#task-3-create-a-virtual-network)
+    - [Task 3: Configure and start replication of VMs](#task-3-configure-and-start-replication-of-vms)
+    - [Task 4: Test Migration](#task-4-test-migration)
+    - [Task 5: Configure target IPs](#task-5-configure-target-ips)
+    - [Task 6: Configure database connection](#task-6-configure-database-connection)
+    - [Task 7: Configure public IP and test application](#task-7-configure-public-ip-and-test-application)
+    - [Task 8: Cleanup the test failover](#task-8-cleanup-the-test-failover)
   - [After the hands-on lab](#after-the-hands-on-lab)
     - [Task 1: Clean up resources](#task-1-clean-up-resources)
 
@@ -466,31 +450,7 @@ Duration: 60 minutes
 
 In this exercise you will migrate the application database from the on-premises Hyper-V virtual machine to a new database hosted in the Azure SQL Database service. You will use the Azure Database Migration Service to complete the migration, which uses the SQL Server Data Migration Assistant for the database assessment and schema migration phases.
 
-### Task 1: Register the Microsoft.DataMigration resource provider
-
-Prior to using the Azure Database Migration Service, the resource provider **Microsoft.DataMigration** must be registered in the target subscription.
-
-1. In the Azure portal, select **All services**, and then select **Subscriptions**.
-
-    ![Screenshot showing the Azure portal click path to the 'Subscriptions' service.](Images/Exercise2/subscriptions.png)
-
-2. Select the subscription in which you want to create the instance of the Azure Database Migration Service. You may need to un-check the global subscription filter to see all your subscriptions.
-
-    ![Screenshot showing a subscription being selected from the subscriptions list.](Images/Exercise2/choose-subscription.png)
-
-3. In the subscription blade, select **Resource providers**. Search for **migration** and select **Microsoft.DataMigration**. If the resource provider status is unregistered, click **Register**.
-
-    ![Screenshot showing the Microsoft.DataMigration resource provider and 'Register' button.](Images/Exercise2/register-rp.png)
-
-    > **Note**: It may take several minutes for the resource provider to register. You can proceed to the next task without waiting for the registration to complete. We will not use the resource provider until task 5.
-
-    ![Screenshot showing the resource provider 'registered' status.](Images/Exercise2/registered-rp.png)
-
-#### Task summary <!-- omit in toc -->
-
-In this task you registered the **Microsoft.DataMigration** resource provider with your subscription. This enables this subscription to use the Azure Database Migration Service.
-
-### Task 2: Create an Azure SQL Database
+### Task 1: Create an Azure SQL Database
 
 In this task you will create a new Azure SQL database to migrate the on-premises database to. You will also configure network access to the SQL database from the Hyper-V host that is running the SmartHotel application on-premises.
 
@@ -547,7 +507,7 @@ In this task you will create a new Azure SQL database to migrate the on-premises
 
 In this task you created an Azure SQL Database, and enabled network access to the database from the on-premises Hyper-V host.
 
-### Task 3: Assess the on-premises database
+### Task 2: Assess the on-premises database
 
 In this task you will install and use Microsoft SQL Server Data Migration Assistant (DMA) to assess an on-premises database.
 
@@ -600,7 +560,7 @@ In this task you will install and use Microsoft SQL Server Data Migration Assist
 
 In this task you used Data Migration Assistant to assess an on-premises database for readiness to migrate to Azure SQL.
 
-### Task 4: Migrate On-premises database
+### Task 3: Migrate On-premises database
 
 In this task you will use Microsoft Data Migration Assistant to migrate the database to Azure SQL Database.
 
@@ -662,7 +622,7 @@ In this task you will use Microsoft Data Migration Assistant to migrate the data
 
 #### Task summary <!-- omit in toc -->
 
-In this task you used Microsoft Data Migration Assistant to migrate the database to Azure SQL.
+In this task you used Microsoft Data Migration Assistant to migrate the database to Azure SQL Database.
 
 ## Exercise 3: Migrate the application and web tiers using Azure Migrate: Server Migration
 
@@ -719,13 +679,7 @@ In this task you will create a new virtual network that will be used by your mig
 
 In this task you created a new virtual network that will be used by your virtual machines when they are migrated to Azure. 
 
-### Task 3: Set up replication for the VMs
-
-In this task you will set up replication for the application VMs within Azure Migrate: Server Migration.
-
-1.  Navigate to the Azure Migrate blade, then click **Servers**. Under **Migration tools**, click on **Overview** to view the migration dashboard.
-
-### Task 7: Configure and start replication of VMs
+### Task 3: Configure and start replication of VMs
 
 In this task, you will configure the internal IP address used by each VM, and review the VM size.
 
@@ -763,24 +717,14 @@ In this task, you will configure the internal IP address used by each VM, and re
 10.  Finally, review the target settings the click **Replicate**. Azure Migrate will now begin replicated the virtual machines.
 
 
-
-
-
-5.  Change the **Private IP address** to **192.168.0.8**.
-
-    ![Screenshot showing a private IP address being configured for a replicated VM in ASR.](Images/Exercise3/private-ip.png)
-
-6.  Click **OK** to close the network interface settings blade, then **Save** the UbuntuWAF settings.
-
-6.  Repeat these steps to configure managed disks for the other VMs.
-    - For **smarthotelweb1** use private IP address **192.168.0.4**.
-    - For **smarthotelweb2** use private IP address **192.168.0.5**.
-
 #### Task summary <!-- omit in toc -->
 
 In this task you set up the replication settings and started the replicating to Azure.
 
+
 ### Task 8: Configure static IP addresses for VMs
+
+!Insert steps for configuring target IPs for VMs
 
 5.  Change the **Private IP address** to **192.168.0.8**.
 
@@ -961,5 +905,3 @@ You should complete all of these steps *after* attending the Hands-on lab. Failu
 5.  Delete the **AzureMigrateRG** resource group containing the Azure Migrate resources.
 
 You should follow all steps provided *after* attending the Hands-on lab.
-
-
