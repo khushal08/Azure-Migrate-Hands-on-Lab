@@ -722,21 +722,29 @@ In this task, you will configure the internal IP address used by each VM, and re
 In this task you set up the replication settings and started the replicating to Azure.
 
 
-### Task 8: Configure static IP addresses for VMs
+### Task 4: Configure static IP addresses for VMs
 
-!Insert steps for configuring target IPs for VMs
+In this task you will configure the target static IPs for the 3 replicated VMs as the application is configured to use pre-defined IPs.
 
-5.  Change the **Private IP address** to **192.168.0.8**.
+1.  Navigate to **Azure Migrate** and under **Migration tools**, click on **Overview**
 
-    ![Screenshot showing a private IP address being configured for a replicated VM in ASR.](Images/Exercise3/private-ip.png)
+2.  Under **Manage** in the left pane, click on **Replicating machines**.
 
-6.  Click **OK** to close the network interface settings blade, then **Save** the UbuntuWAF settings.
+3.  Click on **UbuntuWAF**. Under **General**, click on **Compute and Network** and then select **Edit**
+
+4.  Under **Network Interfaces**, you will see the target network configuration for the VM. Click on the name of the On-Premises Network Name: **InternalNATSwitch**
+
+5.  For  **Private IP address**, enter **Target* address **192.168.0.8** in the available field.
+
+    ![Screenshot showing a private IP address being configured for a replicated VM in Azure Migrate.](Images/Exercise3/private-ip.png)
+
+6.  Click **OK** to close the network interface settings blade, then **Save** the UbuntuWAF Compute and Network settings.
 
 6.  Repeat these steps to configure managed disks for the other VMs.
     - For **smarthotelweb1** use private IP address **192.168.0.4**.
     - For **smarthotelweb2** use private IP address **192.168.0.5**.
 
-### Task 8: Test Failover
+### Task 5: Test Migration
 
 In this task you will perform a test failover of the SmartHotelWeb* virtual machines and configure the machines to point to the previously migrated Azure SQL Database.
 
@@ -905,3 +913,5 @@ You should complete all of these steps *after* attending the Hands-on lab. Failu
 5.  Delete the **AzureMigrateRG** resource group containing the Azure Migrate resources.
 
 You should follow all steps provided *after* attending the Hands-on lab.
+
+
