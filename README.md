@@ -12,35 +12,19 @@ This workshop is applicable to any technical role with a responsibility or invol
 - Application Developer or DevOps Engineer
 - Cloud Solution Architect
 
-## Abstract 
-
-### Workshop
-
-In this workshop, you will learn how to design a migration strategy for on-premises environments to Azure, including the migration of virtual and physical services as well as databases.
-
-At the end of this workshop you will be better able to rationalize the migration of various workloads to Microsoft Azure as well as understanding how to determine the cost of hosting migrated workloads in Azure. 
-
-### Whiteboard design session
-
-In this whiteboard design session, you will look at how to design an Azure migration for a heterogenous customer environment. The existing infrastructure comprises both Windows and Linux servers running on both VMWare and physical machines, and includes some legacy servers. Throughout the whiteboard design session, you will look at the various options and services available to migrate heterogenous environments to Azure.
-
-At the end of this workshop, you will be better able to design and implement the discovery and assessment of environments to evaluate their readiness for migrating to Azure using services including Azure Migrate, Azure Database Migration Service, and Azure Site Recovery.
-
 ## Hands-on lab
 
 In this lab, you will use Azure Migrate to perform an assessment of an on-premises environment with both Windows and Linux operating systems. You will learn how to perform discovery with Azure Migrate, how to group machines and customize assessments to understand dependencies of discovered workloads and how to determine cost.
 
-You will then learn how to migrate servers from an on-premises environment to Azure using Azure Site Recovery. This includes setting up the Azure environment, configuring replication, and performing a test failover.
+You will then learn how to migrate servers from an on-premises environment to Azure using Azure Migrate. This includes setting up the Azure environment, configuring replication, and performing a test failover.
 
-You will also learn to use the Database Migration Service and the Data Migration Assistant to perform assessments of databases and migrate database schemas and content to Azure.
+You will also learn to use the Data Migration Assistant to perform assessments of databases and migrate database schemas and content to Azure.
 
 At the end of this lab, you will be better able to execute migrations to Azure.
 
 ## Azure services and related products
 
 - Azure Migrate
-- Azure Site Recovery
-- Azure Database Migration Service
 - Microsoft Data Migration Assistant
 
 ## Related references
