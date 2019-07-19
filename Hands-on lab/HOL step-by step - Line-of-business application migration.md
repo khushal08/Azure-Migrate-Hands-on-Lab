@@ -106,9 +106,7 @@ The application, web, and web proxy tiers will be migrated to Azure VMs using Az
 
 1.  You will need Owner or Contributor permissions for an Azure subscription to use in the lab.
 
-2.  Your subscription must have sufficient unused quota to deploy the VMs used in this lab.
-
-3.  Your subscription must be registered for the Azure Migrate v2 Preview.
+2.  Your subscription must have sufficient unused quota to deploy the VMs used in this lab (at least 15 vcpus available)
 
 For further details, see [Before the HOL - Line-of-business application migration](./Before%20the%20HOL%20-%20Line-of-business%20application%20migration.md).
 
@@ -128,7 +126,7 @@ In this exercise, you will use Azure Migrate to assess the on-premises environme
 
 In this task, you will create the Azure Migrate project and select the migration assessment tool.
 
-1.  Open your browser and navigate to http://aka.ms/migrate/preview. This special link is used during the Azure Migrate v2 preview phase to access the Azure Portal with the Azure Migrate v2 service enabled.
+1.  Log onto the Azure Portal
 
 2.  Click **All services**, then search for and select  **Azure Migrate** to open the Azure Migrate Overview blade, shown below.
 
@@ -144,9 +142,9 @@ In this task, you will create the Azure Migrate project and select the migration
 
     ![Screenshot of the Azure Migrate 'Add a tool' wizard, at the 'Select assessment tool' step.](Images/Exercise1/add-tool-2.png)
 
-5.  At the 'Select migration tool' step, check the **Skip adding a migration tool for now** checkbox, then click **Next**.
+5.  At the 'Select migration tool' step, select **Azure Migrate: Server Migration**, then click **Next**.
 
-    ![Screenshot of the Azure Migrate 'Add a tool' wizard, at the 'Select migration tool' step.](Images/Exercise1/add-tool-3.png)
+  !add image for step 5
 
 6.  At the 'Review + add tool(s)' step, review the settings and click **Add tool(s)**.
 
@@ -170,7 +168,7 @@ In this task, you will deploy and configure the Azure Migrate appliance in the o
     
     ![Screenshot of the Azure portal search box, searching for the SmartHotelHost virtual machine.](Images/Exercise1/find-smarthotelhost.png)
 
-3.  Click **Connect**, then download the RDP file and connect to the virtual machine using username **demouser** and password **demo@pass123**.
+3.  Click **Connect**, then download the RDP file and connect to the virtual machine using username **demouser** and password **demo@pass123**. (Please be mindful that if you changed the VM password during ARM deployment, you'll need to use the password you used - hopefully you haven't forgotten!)
    
 4.  In the SmartHotelHost RDP session, a PowerShell script will run automatically. Wait for it to complete.
 
@@ -190,7 +188,7 @@ Before deploying the Azure Migrate appliance virtual machine, we need to create 
 
     ![Screenshot of the Virtual Switch Manager window from Hyper-V Manager. The new switch has been renamed 'Azure Migrate Switch'.](Images/Exercise1/create-virtual-switch-2.png)
 
-We will now deploy the Azure Migrate appliance virtual machine.  Normally, you would download the .ZIP file containing the appliance to your Hyper-V host, and unzip it. To save time, these steps have been completed for you.
+We will now deploy the Azure Migrate appliance virtual machine.  Navigate to this link in the VM host to download the latest version of Azure Migrate appliance (https://aka.ms/migrate/appliance/hyperv). Once it's downloaded, extract it to the following path F:\VirtualMachines\AzureMigrateAppliance
 
 8.  Back in Hyper-V Manager, under 'Actions', click **Import Virtual Machine...** to open the 'Import Virtual Machine' wizard.
    
@@ -602,13 +600,13 @@ In this task you will install and use Microsoft SQL Server Data Migration Assist
 
 In this task you used Data Migration Assistant to assess an on-premises database for readiness to migrate to Azure SQL.
 
-### Task 4: Migrate On-premises database schema
+### Task 4: Migrate On-premises database
 
-In this task you will use Microsoft Data Migration Assistant to migrate the database schema to Azure SQL Database. This is a prerequisite to migrating the database contents with the Azure Database Migration Service.
+In this task you will use Microsoft Data Migration Assistant to migrate the database to Azure SQL Database.
 
 1. In the Data Migration Assistant, select the New (+) icon, and then under **Project type**, select **Migration**.
 
-2. Specify a project name (*e.g.* SmartHotelMigration), in the **Source server type** text box, select **SQL Server** and then in the **Target server type** text box, select **Azure SQL Database**. Under **Migration Scope** select **Schema only**. Click **Create**.
+2. Specify a project name (*e.g.* SmartHotelMigration), in the **Source server type** text box, select **SQL Server** and then in the **Target server type** text box, select **Azure SQL Database**. Under **Migration Scope** select **Schema and data**. Click **Create**.
 
     ![Screenshot showing the new project dialog from DMA, with migration selected.](Images/Exercise2/new-dma-migration.png)
 
@@ -650,117 +648,25 @@ In this task you will use Microsoft Data Migration Assistant to migrate the data
 
     ![Screenshot showing the 'Select target' step of the DMA migration wizard, with the smarthoteldb selected.](Images/Exercise2/dma-select-target-db.png)
 
-7. The **Select objects** tab allows you to specify the schema objects in the **SmartHotel.Registration** database that need to be deployed to Azure SQL Database. Select the **Bookings** table and unselect the **_MigrationHistory** table. Then click **Generate SQL script**.
+7. The **Select objects** tab allows you to specify the schema objects in the **SmartHotel.Registration** database that need to be deployed to Azure SQL Database. Select both the **Bookings** table and the **_MigrationHistory** table. Then click **Generate SQL script**.
 
     ![Screenshot showing the 'Select objects' step of the DMA migration wizard.](Images/Exercise2/select-objects.png)
 
 8. The script to migrate the schema to Azure SQL Database is shown on the **Script & deploy schema** tab. Review the script and select **Deploy schema** to deploy the schema to Azure SQL Database. Under **Deployment results**, verify that the script executed successfully.
 
+9. Select **Migrate data** to proceed with the next steps to migrate the database.
+
+10. Under **Selected tables** ensure the target tables are checked and select **Start data migration** (it should only take 1-2 seconds to migrate as it is a tiny dataset).
+
     ![Screenshot showing the schema migration script in the DMA migration wizard.](Images/Exercise2/deploy-schema.png)
 
 #### Task summary <!-- omit in toc -->
 
-In this task you used Microsoft Data Migration Assistant to migrate the database schema to Azure SQL. This is a prerequisite to migrating the database contents with the Azure Database Migration Service.
+In this task you used Microsoft Data Migration Assistant to migrate the database to Azure SQL.
 
-### Task 5: Create the Database Migration Service
+## Exercise 3: Migrate the application and web tiers using Azure Migrate: Server Migration
 
-In this task you will create an Azure Database Migration Service resource. This resource is managed by the Microsoft.DataMigration resource provider which you registered in task 1.
-
-> **Note:** The Azure Database Migrate Service (DMS) requires network access to your on-premises database to retrieve the data to transfer. To achieve this access, the DMS is deployed into an Azure VNet. You are then responsible for connecting that VNet securely to your database, for example by using a Site-to-Site VPN or ExpressRoute connection.
-> 
-> In this lab, the 'on-premises' environment is simulated by a Hyper-V host running in an Azure VM. This VM is deployed to the 'smarthotelvnet' VNet. The DMS will be deployed to a separate VNet called 'DMSVnet'. To simulate the on-premises connection, these two VNet have been peered.
-
-1. In the Azure portal, select **+ Create a resource**, search for **migration**, and then select **Azure Database Migration Service** from the drop-down list.
-
-2. On the **Azure Database Migration Service** blade click **Create**.
-
-    ![Screenshot showing the DMS 'create' button.](Images/Exercise2/dms-create-1.png)
-
-   > **Tip**: If the migration service blade will not load, refresh the portal blade in your browser.
-
-3. In the **Create Migration Service** blade enter the following values and click **Create**.
-
-    - Service Name: **SmartHotelDBMigration**
-    - Subscription: **Select your Azure subscription**.
-    - Resource group: **SmartHotelDBRG**
-    - Location: **Choose the same region as the SmartHotel host**.
-    - Virtual network: Choose the existing **DMSvnet/DMS** virtual network and subnet.
-    - Pricing tier: **Standard: 1 vCore**
-
-    ![Screenshot showing the DMS 'Create' blade.](Images/Exercise2/create-dms.png)
-
-    > **Note**: Creating a new migration service can take up to 30 minutes. Wait for provisioning to complete before moving on to the next task.
-
-#### Task summary <!-- omit in toc -->
-
-In this task you created a new Azure Database Migration Service resource.
-
-### Task 6: Migrate the on-premises data
-
-In this task you will create a migration project in the Azure Database Migration Service and initiate a database migration for an on-premises database to Azure SQL Database.
-
-1. Browse to your migration service in the Azure portal by clicking **All resources** and selecting **SmartHotelDBMigration**.
-
-2. Create a new **Migration Project** by clicking the **+New Migration Project** button.
-
-    ![Screenshot of the DMS blade in the Azure portal, with the New Migration Project button highlighted.](Images/Exercise2/new-migration-project.png)
-
-3. Enter a project name (*e.g.* SmartHotelMigration). Select **SQL Server** as the *Source server type* and **Azure SQL Database** as the *Target server type*. Click **Create and run activity**.
-
-    ![Screenshot of the 'New migration project' blade in the DMS experience in the Azure portal.](Images/Exercise2/new-migration-project-2.png)
-
-> **Note**: We will connect the DMS service to the Hyper-V host (10.0.0.4). This host has been pre-configured with a NAT rule to forward incoming SQL requests (TCP port 1433) to the SQL Server VM. In a real-world migration, the SQL Server VM would most likely have its own IP address on the internal network, via an external Hyper-V switch.
-
-4. In the **Migration source detail** blade, enter the following values and click **Save**.
-
-    - Source SQL Server instance name: **10.0.0.4**
-    - Authentication type: **SQL Authentication**
-    - User Name: **sa**
-    - Password: **demo@pass123**
-    - Encrypt connection: **Checked**
-    - Trust server certificate: **Checked**
-
-    ![Screenshot of the 'migration source detail' step of the DMS migration wizard.](Images/Exercise2/migration-source-detail.png)
-
-5. In the **Migration target details** pane, enter the following values and click **Save**.
-
-    - Target server name: **Value from your database, {something}.database.windows.net**.
-    - Authentication type: **SQL Authentication**
-    - User Name: **demouser**
-    - Password: **demo@pass123**
-    - Encrypt connection: **Checked**
-
-    ![Screenshot showing the DMS migration target settings.](Images/Exercise2/migration-target-detail.png)
-
-    > **Note**: You can find the target server name in the Azure portal by browsing to your database.
-
-    ![Screenshot showing the Azure SQL Database server name.](Images/Exercise2/sql-db-name.png)
-
-6. The **Map to target databases** step allows you to specify which source database should be migrated to which target database (DMS supports migrating multiple databases in a single migration project). Select **SmartHotel.Registration** for the *Source database* and **smarthoteldb** for the *Target database*. Click **Save**.
-
-    ![Screenshot from DMS showing how the mapping between source and destination database is configured.](Images/Exercise2/map-target-db.png)
-        
-7. The **Select tables** step allows you to specify which tables should have their data migrated. Select the **Bookings** table and click **Save**.
-
-    ![Screenshot from DMS showing tables being selected for replication.](Images/Exercise2/select-tables.png)
-
-8. In the **Migration summary** pane, enter an **Activity name** (*e.g.* SmartHotelMigrateActivity) and select **Do not validate** for the **Validation option**. Click **Run migration**.
-
-    ![Screenshot from DMS showing a summary of the migration settings.](Images/Exercise2/migration-summary.png)
-
-9. On the **Activity** pane, you can view the progress of the migration activity. Click **Refresh** to update the status.
-
-    ![Screenshot from DMS showing the migration in progress.](Images/Exercise2/activity.png)
-
-    > **Note:** You do **not** need to wait for the migration to complete. You may proceed to the next exercise.
-
-### Exercise summary <!-- omit in toc -->
-
-In this exercise you migrated the application database from on-premises to Azure SQL Database using the Azure Database Migration Service and SQL Server Data Migration Assistant.
-
-## Exercise 3: Migrate the application and web tiers using Azure Site Recovery
-
-Duration: 90 minutes
+Duration: 45 minutes
 
 In this exercise you will migrate the web tier and application tiers of the application from on-premises to Azure using Azure Site Recovery. You will then perform a test failover of the application. The test servers will be reconfigured to use the application database hosted in Azure SQL.
 
@@ -787,30 +693,9 @@ In this task you will create a new Azure Storage Account that will be used by Az
 
 #### Task summary <!-- omit in toc -->
 
-In this task you created a new Azure Storage Account that will be used by Azure Site Recovery.
+In this task you created a new Azure Storage Account that will be used by Azure Migrate: Server Migration.
 
-### Task 2: Create a Recovery Services Vault
-
-In this task you will create a new Recovery Services Vault that will be used to migrate your virtual machines from on-premises to Azure. A Recovery Services Vault is the resource type used by both the Azure Site Recovery and Azure Backup services.
-
-1. In the Azure portal, click **+Create a resource**, then select **Storage**, followed by **Backup and Site Recovery (OMS)**.
-
-    ![Screenshot of the Azure portal showing the create recovery services vault navigation.](Images/Exercise3/create-vault-1.png)
-
-2. In the **Recovery Services vault** blade, enter the following values and click **Create**.
-
-    - Name: **Vault**
-    - Subscription: **Select your Azure subscription**.
-    - Resource group: **VaultRG**
-    - Location: **Select the same location as your Azure SQL Database**.
-
-    ![Screenshot of the Azure portal showing the recovery services vault creation blade.](Images/Exercise3/create-vault-2.png)
-
-#### Task summary <!-- omit in toc -->
-
-In this task you created a new Recovery Services Vault that will be used to migrate your virtual machines from on-premises to Azure.
-
-### Task 3: Create a Virtual Network
+### Task 2: Create a Virtual Network
 
 In this task you will create a new virtual network that will be used by your migrated virtual machines when they are migrated to Azure. (Azure Site Recovery will only create the VMs, their network interfaces, and their disks; all other resources must be staged in advance.)
 
@@ -834,245 +719,52 @@ In this task you will create a new virtual network that will be used by your mig
 
 In this task you created a new virtual network that will be used by your virtual machines when they are migrated to Azure. 
 
-### Task 4: Prepare On-premises Virtual Machines
+### Task 3: Set up replication for the VMs
 
-In this task you will install the Azure Virtual Machine Agent (VM Agent) on your on-premises servers prior to migration. 
+In this task you will set up replication for the application VMs within Azure Migrate: Server Migration.
 
-> **Note:** The Microsoft Azure Virtual Machine Agent (VM Agent) is a secure, lightweight process that manages virtual machine (VM) interaction with the Azure Fabric Controller. The VM Agent has a primary role in enabling and executing Azure virtual machine extensions. VM Extensions enable post-deployment configuration of VM, such as installing and configuring software. VM extensions also enable recovery features such as resetting the administrative password of a VM. Without the Azure VM Agent, VM extensions cannot be used.
->
-> We will install the VM agent on the Hyper-V VMs before they are migrated. You can also install the agent after migration.
+1.  Navigate to the Azure Migrate blade, then click **Servers**. Under **Migration tools**, click on **Overview** to view the migration dashboard.
 
-1.  Using the Azure portal, navigate to the **SmartHotelHost** VM, then click **Connect** and open an RDP session to the VM using the user name **demouser** and password **demo@pass123**.
+### Task 7: Configure and start replication of VMs
 
-2.  Open **Hyper-V Manager**, either from the Start menu or by opening Server Manager and using the 'tools' menu.
+In this task, you will configure the internal IP address used by each VM, and review the VM size.
 
-3.  In Hyper-V Manager, click on **SmartHotelWeb1**, then click **Connect**. This opens a new session with the SmartHotelWeb1 VM. Log in to the Administrator account using password **demo@pass123** (use the 'eyeball' to check the password was entered correctly with your local keyboard mapping).
+1.  Navigate to the Azure Migrate blade, then click **Servers**. Under **Migration tools**, click on **Replicate**.
 
-4.  Open a web browser and download the VM Agent from:
+2.  Select **Replicating machines** and select the **UbuntuWAF** VM then click **Compute and Network**, then click **Edit**.
 
-    ```
-    https://go.microsoft.com/fwlink/?LinkID=394789
-    ```
+    !add image for step 2
 
-5.  After the installer has downloaded, run it. Click **Next**, **I accept the terms in the License Agreement**, and then **Next** again. Click **Finish**.
+3.  For **Source settings**, under **Are your machines virtualized?**, select **Yes, with Hyper-V** from the dropdown. Click **Next: Virtual machines**.
 
-    ![Screenshot showing the Windows installer for the Azure VM Agent.](Images/Exercise3/vm-agent-win.png)
+4.  For **Virtual machines**, under **Import migration settings from an assessment?**, select **Yes, apply migration settings from an Azure Migrate assessment** from the dropdown.
 
-6.  Close the smarthotelweb1 window. Repeat the Azure VM agent installation process on **SmartHotelWeb2**.
+5.  Under **Select group**, select **SmartHotel VMs**, and under **Select assessment**, select **SmartHotel Assessment**
 
-> **Note**: There is no need to install the Azure VM agent on the **smarthotelSQL1** VM, since the SmartHotel database has been migrated to the Azure SQL Database managed service.
+6.  You should now see the 3 application layer VMs. Place a tick in the box for each VM then select **Next: Target settings**.
 
-We will now install the Linux version of the Azure VM Agent on the Ubuntu VM. All Linux distributions supports by Azure have integrated the Azure VM Agent into their software repositories, making installation easy in most cases.
+7.  For **Target settings**, select your subscription, then use the following settings then click **Next: Compute** :
 
-7.  In the Azure portal, navigate to the SmartHotelHost VM and note the public IP address. Open a new browser tab and navigate to **https://shell.azure.com**, accept and prompts and open a **Bash shell** session (not a PowerShell session).
 
-    ![Screenshot showing the Azure Cloud Shell, with a Bash session.](Images/Exercise3/cloud-shell.png)
+    - Subscription: **Select your Azure subscription**.
+    - Resource group: **SmartHotelMigrateRG**
+    - Replication Storage Account: **[Storage Account name created in previous step]**
+    - Virtual Network: **SmartHotelASRVNet**
+    - Subnet: **SmartHotel**
 
-8.  Enter the following command, replacing \<ip address\> with the public IP address of the SmartHotelHost:
+8.  Under **Compute**, review the target compute settings for the VMs to be replicated. Select the appropriate OS for the dropdowns in column, **OS TYPE** but leave everything else default for now. Then select **Next: Disks**.
 
-    ```
-    ssh demouser@<ip address>
-    ```
-
-    > **Note:** This SSH connection is actually with the UbuntuWAF virtual machine hosted on the SmartHotelHost. The SmartHotelHost has been pre-configured with a network rule which forwards the SSH connection (TCP port 22) to the UbuntuWAF virtual machine.
-
-9. Enter 'yes' if prompted whether to connect. Use the password **demo@pass123**.
-
-    ![Screenshot showing the Azure Cloud Shell, with a SSH session to UbuntuWAF.](Images/Exercise3/ssh.png)
-
-10. In the terminal window, enter the following command:
-
-    ```
-    sudo apt-get install walinuxagent
-    ```
-    When prompted, enter the password **demo@pass123**. At the *Do you want to continue?* prompt, type **Y** and press **Enter**.
-
-    ![Screenshot showing the Azure VM Agent install experience on Ubuntu.](Images/Exercise3/ubuntu-agent-1.png)
-
-11. Wait for the installer to finish, then close the terminal window and the Ubuntu VM window.
-
-12. Minimize the **SmartHotelHost** remote desktop window, but keep the session open. We'll use it again shortly.
-
-#### Task summary <!-- omit in toc -->
-
-In this task you installed the Azure Virtual Machine Agent (VM Agent) on your on-premises servers prior to migration. 
-
-### Task 5: Configure Azure Site Recovery
-
-In this task you will configure Azure Site Recovery by creating a Hyper-V Site that represents your on-premises environment. You will then begin to replicate your servers to Azure.
-
-1. Open the Azure portal and browse to your Recovery Services Vault.
-
-2. From the vault, select **Site recovery** under **Getting started**, then click **Prepare Infrastructure**.
-
-    ![Screenshot showing the ASR 'Site recovery' link.](Images/Exercise3/vault-siterecovery.png)
-
-3. The **Prepare Infrastructure** wizard opens. On the **Protection goal** blade, select the following values and click **OK**.   
-    - Where are your machines located? **On-premises**
-    - Where to you want to replicate your machines to? **To Azure**
-    - Are your machines virtualized? **Yes, with Hyper-V**
-    - Are you using System Center VMM to manage your Hyper-V hosts? **No**
-
-    ![Screenshot of the ASR 'Protection goal' blade.](Images/Exercise3/protection-goal.png)
+    - smarthotelweb1: **Windows**
+    - smarthotelweb2: **Windows**
+    - UbuntuWAF: **Linux**
     
-4. On the **Deployment planning** blade, select **I will do it later** for the question **Have you completed deployment planning**. Click **OK**.
+9.  Under **Disks**, review the target disk settings for the VMs to be replicated. Ensure under **DISKS TO REPLICATE** that the dropdown shows **All selected**. Then select **Next: Review + Start replication**.
 
-    **Note**: When you're planning a large deployment, you should make sure you complete deployment planning for Hyper-V replication. More information can be found at <https://docs.microsoft.com/azure/site-recovery/hyper-v-deployment-planner-overview>.
-    
-5. On the **Prepare source** blade click **+ Hyper-V Site**. Enter **SmartHotelSite** for the **Name** and click **OK**.
+10.  Finally, review the target settings the click **Replicate**. Azure Migrate will now begin replicated the virtual machines.
 
-   ![Screenshot of the ASR 'Prepare source' and 'Create Hyper-V site' blades.](Images/Exercise3/create-site.png)
 
-6. Click **+ Hyper-V Server**. In the **Add Server** blade, right-click the Download link for the Microsoft Azure Site Recovery Provider installer, and copy the link to the clipboard. Open the SmartHotelHost remote desktop window, launch **Chrome** from the desktop shortcut, and paste the link into a new browser tab to download the Azure Site Recovery provider installer.
 
-   Return to your browser and download the vault registration key. Save the file locally, then copy the file and paste it to the desktop of the SmartHotelHost in the remote desktop window.
 
-    ![Screenshot of the ASR 'Prepare source' and 'Add server' blades.](Images/Exercise3/add-server.png)
-
-7. Run **AzureSiteRecoveryProvider.exe**. On the **Microsoft Update** tab, select **Off** and click **Next**. Accept the default installation location and click **Install**.
-
-    ![Screenshot of the ASR provider installer.](Images/Exercise3/asr-provider-install.png)
-
-8.  When the installation has completed click **Register**. Browse to the location of the key file you downloaded. When the key is loaded click **Next**.
-
-    ![Screenshot of the ASR provider registration settings.](Images/Exercise3/asr-registration.png)
-
-9.  Select **Connect directly to Azure Site Recovery without a proxy server** and click **Next**. On the **Proxy Settings** tab, click **Next** again. The registration of the Hyper-V host with Azure Site Recovery will begin.
-
-10. Wait for registration to complete, then click **Finish**.
-
-    ![Screenshot of the ASR provider showing successful registration.](Images/Exercise3/asr-registered.png)
-
-    > **Note:** The **OK** button on the **Prepare source** blade should become enabled once the metadata is loaded into Azure. Sometimes this takes a long time or doesn't happen.
-    >
-    > **Tip**: Open a new browser tab, open the Azure portal, and browse to your Recovery Services Vault. Click **Site Recovery Infrastructure**, then click **Hyper-V Hosts**. If the SmartHotelHost is listed, you can close the wizard and then run the **Getting started > Site Recovery** wizard again.
-
-11. Click **OK** on the **Prepare Source** blade, once the button is enabled.
-
-    ![Screenshot of the ASR 'Prepare source' blade, completed and with the 'OK' button enabled.](Images/Exercise3/prepare-source-ok.png)
-
-12. In the **Target** blade, select your Azure subscription, then click **OK**. 
-
-    > **Note**: You do not need to add a storage account or create a virtual network. You performed these steps earlier in this exercise.
-
-    ![Screenshot of the ASR 'Target' blade.](Images/Exercise3/target.png)
-
-13. In the **Replication policy** blade click **+ Create and Associate**. In the **Create and associate policy** blade enter the following values and leave the defaults for the remaining values.
-
-    - Name: **SmartHotelReplicationPolicy**
-
-    ![Screenshot of the ASR 'Create and associate policy' blade.](Images/Exercise3/associate-policy.png)
-
-14. Click **OK** and wait for the policy to associate. This can take several minutes.
-    
-    > **Note:** When you create a new replication policy, it's automatically associated with the specified Hyper-V site (*e.g.* SmartHotelSite).
-
-15. After the policy is created click **OK** on the **Replication policy** blade.
-
-    ![Screenshot of the ASR replication policy blade.](Images/Exercise3/replication-policy.png)
-
-16. Click **OK** again to complete the **Prepare infrastructure** wizard. 
-
-    ![Screenshot of the completed ASR 'Prepare infrastructure' wizard.](Images/Exercise3/prepare-infra-ok.png)
-
-17. Click **Step 1: Replicate Application** button to open the **Enable replication** wizard. The **Source** blade (step 1) will also open. In the **Source** blade select **On-premises** for the **Source** and **SmartHotelSite** for the **Source location**. Click **OK**.
-
-    ![Screenshot of the ASR 'Enable replication' and 'Source' blades.](Images/Exercise3/enable-replication-source.png)
-
-18. Complete the **Target** blade as follows, then click **OK**.
-    - Post-failover resource group: **SmartHotelASRRG**
-    - Storage account: **vaultstorage\[unique number\]**
-    - Post-failover Azure network: **SmartHotelASRVNet**
-    - Subnet: **SmartHotel (192.168.0.0/24)**
-
-    ![Screenshot of the ASR replication target blade.](Images/Exercise3/enable-replication-target.png)
-
-19. On the **Select virtual machines** blade, select **UbuntuWAF**, **SmartHotelWeb1** and **SmartHotelWeb2**. Click **OK**.
-
-    ![Screenshot of the ASR 'Select virtual machines' blade.](Images/Exercise3/select-vms.png)
-
-20. On the **Configure properties** blade, select **Windows** as the **OS Type** for the **Defaults** setting and for the **smarthotelweb1** and **smarthotelweb2** VMs. Select **Linux** for the **UbuntuWAF** VM. Click **OK**.
-
-    ![Screenshot of the ASR replication properties for each VM.](Images/Exercise3/replication-properties.png)
-
-21. On the **Configure replication settings** blade click **OK**.
-
-    ![Screenshot of the ASR replication settings, showing frequency, retention period, initial replication start time, and other settings.](Images/Exercise3/replication-settings.png)
-
-22. This completes the *Enable replication* wizard. Click **Enable replication**.
-
-    ![Screenshot of the completed 'Enable replication' wizard.](Images/Exercise3/enable-replication-finished.png)
-
-
-23. From the Recovery Services Vault you can click on **Site Recovery Jobs** to view the status of the jobs to enable replication on your virtual machines.
-
-    ![Screenshot of the ASR replication job status.](Images/Exercise3/site-recovery-jobs.png)
-
-#### Task summary <!-- omit in toc -->
-
-In this task you configured Azure Site Recovery by creating a Hyper-V Site that represents your on-premises environment. You then began to replicate your servers to Azure.
-
-### Task 6: Create a Recovery Plan
-
-In this task you will create a recovery plan. This recovery plan will be used to test the migration of your virtual machines and controls settings such as the start order for VMs.
-
-1. In your recovery services vault click **Recovery Plans (Site Recovery)** under the **Manage** heading. Then click **+ Recovery plan**.
-
-    ![Screenshot showing the click path to add an ASR recovery plan.](Images/Exercise3/recovery-plan-create-start.png)
-
-1. Fill in the **Create recovery plan** blade as follows:
-   
-   - Name: **SmartHotelRecovery**
-   - Allow items with deployment model: **Resource Manager**
-   - Select items: Open blade and select **smarthotelweb1**, **smarthotelweb2** and **UbuntuWAF**
-  
-   Click **OK** twice, and wait for the plan to be created.
-
-    ![Screenshot showing ASR blades to configure a recovery plan and select VMs.](Images/Exercise3/recovery-plan-select-items.png)
-
-2. Select the **SmartHotelRecovery** plan. Click **Customize**.
-
-    ![Screenshot showing the option to customize a recovery plan.](Images/Exercise3/recovery-plan-customize.png)
-
-3. Expand **Group 1: Start** and click the ellipsis (**...**) for **smarthotelweb2**. Click **Delete machine**.
-
-    ![Screenshot showing a VM being removed from a VM group in a recovery plan.](Images/Exercise3/recovery-plan-web2-delete.png)
-
-4. Click **+ Group** and the ellipsis (**...**) by **Group 2: Start**. Click **Add protected items**. Select **smarthotelweb2** and click **OK**.
-
-    ![Screenshot of a new VM group in a recovery plan.](Images/Exercise3/recovery-plan-group2.png)
-
-5. Click **Save**, then close the recovery plan blade.
-
-    ![Screenshot highlighting the recovery plan 'Save' button.](Images/Exercise3/recovery-plan-save.png)
-
-#### Task summary <!-- omit in toc -->
-
-In this task you created a recovery plan to control the start order of your virtual machines on failover.
-
-### Task 7: Configure Azure VM settings
-
-By default, Azure Site Recovery uses unmanaged disks when creating VMs in Azure. This is because when using Azure Site Recovery for disaster recovery, fail-back to on-premises environments is only support with unmanaged disks. For migration, fail-back is not a concern and so using managed disks is preferable.
-
-In this task, you will change the replication settings for each Azure VM to use Managed Disks. You will also configure the internal IP address used by each VM, and review the VM size.
-
-1.  Navigate to the Recovery Service Vault blade for your vault, then click **Replicated items**. Click on the **UbuntuWAF** VM to open the replication settings for this VM. 
-
-    ![Screenshot showing the replicated items in ASR, listing 3 VMs.](Images/Exercise3/replicated-items.png)
-
-2.  Click **Compute and Network**, then click **Edit**.
-
-    ![Screenshot showing the click path to edit the replication settings for a VM.](Images/Exercise3/compute-and-network-edit.png)
-
-3.  Change the **Use managed disks** setting to **Yes**. Review the VM size is **F2s_v2 (2 cores, 4GB memory, 1 NICs)**, and if necessary, change it.
-   
-    > **Note:**  You can also use this blade to change other settings, such as the availability set.
-
-    ![Screenshot showing a VM being configured to replicate using managed disks.](Images/Exercise3/managed-disks.png)
-
-4.  Under **Network Interfaces**, click on **InternalNATSwitch** to open the network Interface settings.
-
-    ![Screenshot showing the link to edit the network interface settings for a replicated VM.](Images/Exercise3/nic.png)
 
 5.  Change the **Private IP address** to **192.168.0.8**.
 
@@ -1086,9 +778,19 @@ In this task, you will change the replication settings for each Azure VM to use 
 
 #### Task summary <!-- omit in toc -->
 
-In this task you modified the replication settings for each VM to use managed disks in Azure, and configured their private IP addresses to match their on-premises IP addresses.
+In this task you set up the replication settings and started the replicating to Azure.
 
-> **Note:** Azure Site Recovery made a "best guess" at the VM settings, but you have full control over the size and settings of migrated items. Setting the private IP address helps us ensure our virtual machines in Azure retain the same IPs they had on-premises, which avoids having to reconfigure the VMs during migration (for example, by editing web.config files).
+### Task 8: Configure static IP addresses for VMs
+
+5.  Change the **Private IP address** to **192.168.0.8**.
+
+    ![Screenshot showing a private IP address being configured for a replicated VM in ASR.](Images/Exercise3/private-ip.png)
+
+6.  Click **OK** to close the network interface settings blade, then **Save** the UbuntuWAF settings.
+
+6.  Repeat these steps to configure managed disks for the other VMs.
+    - For **smarthotelweb1** use private IP address **192.168.0.4**.
+    - For **smarthotelweb2** use private IP address **192.168.0.5**.
 
 ### Task 8: Test Failover
 
