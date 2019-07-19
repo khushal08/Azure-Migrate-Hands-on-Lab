@@ -2,7 +2,7 @@
 
 Smart Hotels is a major player in the travel industry. The CTO, James Hilton, was hired 6 months ago with a mandate to address ever-increasing IT costs. He has identified a sprawling IT estate, including a substantial legacy server footprint with 448 servers and VMs identified to date. There is a complex web of dependencies between servers and no-one has a clear view of the entire estate.
 
-The board has approved an intial 'lighthouse' project to pave the way for a larger transformation program. This project involves migrating Smart Hotel's current guest services application used for checking guests at Smart Hotels around the world.
+The board has approved an initial 'lighthouse' project to pave the way for a larger transformation program. This project involves migrating Smart Hotel's current guest services application used for checking guests at Smart Hotels around the world.
 
 You have been tasked with planning and executing this migration.
 
