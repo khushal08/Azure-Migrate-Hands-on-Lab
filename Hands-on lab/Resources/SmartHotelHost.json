@@ -35,7 +35,7 @@
         "dmsSubnetName": "DMS",
         "customScriptFolder": "./",
         "customScriptUriScriptFileName": "BootstrapSmartHotelHost.ps1",
-        "customScriptUri": "https://cloudworkshop.blob.core.windows.net/line-of-business-application-migration/BootstrapSmartHotelHost.ps1"
+        "customScriptUri": "https://github.com/khushal08/Azure-Migrate-Hands-on-Lab/blob/61e235b0924d0945a51e8ef08a2ecb44f0c549d7/Hands-on%20lab/Resources/BootstrapSmartHotelHost.ps1"
     },
     "resources": [
         {
