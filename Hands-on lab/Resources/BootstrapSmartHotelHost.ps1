@@ -23,22 +23,43 @@ New-Partition -DiskNumber $disk.DiskNumber -UseMaximumSize -DriveLetter F
 Format-Volume -DriveLetter F -FileSystem NTFS -NewFileSystemLabel DATA
 
 # Download disks for nested Hyper-V VMs, and various other files we'll need during the lab
-$downloads = @( `
-     "https://github.com/khushal08/Azure-Migrate-Hands-on-Lab/blob/51710068f708c6aff1d4971745ec6b553f344f2f/Hands-on%20lab/Resources/PostRebootConfigure.ps1" `
+$downloads = @( `"https://github.com/khushal08/Azure-Migrate-Hands-on-Lab/blob/51710068f708c6aff1d4971745ec6b553f344f2f/Hands-on%20lab/Resources/PostRebootConfigure.ps1" `
     ,"https://github.com/khushal08/Azure-Migrate-Hands-on-Lab/blob/51710068f708c6aff1d4971745ec6b553f344f2f/Hands-on%20lab/Resources/OnLoginConfigure.ps1" `
     ,"https://github.com/khushal08/Azure-Migrate-Hands-on-Lab/blob/51710068f708c6aff1d4971745ec6b553f344f2f/Hands-on%20lab/Resources/ConfigureAzureMigrateApplianceNetwork.ps1" `
     ,"https://download.microsoft.com/download/C/6/3/C63D8695-CEF2-43C3-AF0A-4989507E429B/DataMigrationAssistant.msi" `
     )
 
-$destinationFiles = @( `
-     "$opsDir\PostRebootConfigure.ps1" `
+$destinationFiles = @( `"$opsDir\PostRebootConfigure.ps1" `
     ,"$opsDir\OnLoginConfigure.ps1" `
     ,"$opsDir\ConfigureAzureMigrateApplianceNetwork.ps1" `
     ,"$opsDir\DataMigrationAssistant.msi" `
     )
 
-Import-Module BitsTransfer
-Start-BitsTransfer -Source $downloads -Destination $destinationFiles
+# KK Insert Start for $downloads and $destination
+# Set destination folder (edit as needed)
+$opsDir = 'C:\Ops\AzureMigrate'
+New-Item -ItemType Directory -Path $opsDir -Force | Out-Null
+
+# Source URLs (use RAW links for GitHub files)
+# Sanity check: arrays should align
+if ($downloads.Count -ne $destinationFiles.Count) {
+    throw "downloads and destinationFiles counts do not match."
+}
+
+# Download loop
+for ($i = 0; $i -lt $downloads.Count; $i++) {
+    $src = $downloads[$i]
+    $dst = $destinationFiles[$i]
+
+    Write-Host "Downloading $src -> $dst"
+    Invoke-WebRequest -Uri $src -OutFile $dst -UseBasicParsing
+}
+
+Write-Host "All files downloaded to $opsDir"
+
+# KK FInish 1
+
+
 
 # Register task to run post-reboot script once host is rebooted after Hyper-V install
 $action = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\Powershell.exe" -Argument "-executionPolicy Unrestricted -File $opsDir\PostRebootConfigure.ps1"
